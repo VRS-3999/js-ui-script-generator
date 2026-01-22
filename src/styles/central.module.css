@@ -1,0 +1,208 @@
+.Header {
+  padding: 0 !important;
+}
+
+.ant-layout-header {
+    background: inherit;
+    padding: 0px 0px 0px 0px !important;
+    height: fit-content;
+}
+
+.headerContainerGlobal {
+    position: relative;
+    line-height: 1.28;
+    font-size: 12px;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to right, #FAF1F1, #F1F4F7);
+    margin-top: -20px;
+    padding: 10px;
+    margin-left: -20px;
+    margin-right: -20px;
+}
+
+.headerTitleGlobal {
+    font-weight: 700;
+    font-size: 1.125rem !important;
+    color: #1c2b33;
+}
+
+.updatedTimeGlobal {
+    font-weight: 400;
+    line-height: 1.42858 !important;
+    color: #1c2b33;
+    font-size: .875rem !important;
+}
+
+.refreshBtnHeaderGlobal {
+    width: 16px;
+    height: 16px;
+    mask-image: url("../assets/all-in-one-logo.png");
+    mask-size: 441px 402px;
+    mask-position: -293px -317px;
+    background-color: black;
+}
+
+.refreshBtnContainerGlobal {
+    vertical-align: middle;
+    display: inline-flex;
+    margin-left: 8px;
+    line-height: 1.28;
+    padding: 8px;
+    border-radius: 4px;
+    padding-right: 12px;
+    padding-left: 12px;
+    align-items: center;
+    cursor: pointer;
+    border: 0.7px solid #8e8b8b;
+}
+
+.marginLeft8 {
+    margin-left: 8px;
+}
+.draftBtnContainerGlobal {
+    vertical-align: middle;
+    display: inline-flex;
+    line-height: 1.28;
+    padding: 8px;
+    border-radius: 4px;
+    padding-right: 12px;
+    padding-left: 12px;
+    align-items: center;
+    cursor: pointer;
+    border: 0.7px solid #8e8b8b;
+}
+
+.draftBtnHeaderGlobal {
+    width: 16px;
+    height: 16px;
+    mask-image: url("../assets/all-in-one-logo.png");
+    background-color: black;
+    mask-size: 441px 402px;
+    mask-position: -120px -372px;
+}
+
+.draftTitleHeaderGlobal {
+    text-overflow: ellipsis;
+    font-weight: 500;
+    word-wrap: normal;
+    margin-left: 5px;
+}
+
+.reviewPublishContainerGlobal {
+    vertical-align: middle;
+    display: inline-flex;
+    margin-left: 8px;
+    line-height: 1.28;
+    padding: 8px;
+    border-radius: 4px;
+    padding-right: 12px;
+    padding-left: 12px;
+    align-items: center;
+    cursor: pointer;
+    border: 0.7px solid #8e8b8b;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    word-wrap: normal;
+    background-color: #0a78be;
+    color: white;
+}
+
+.headerRightFlexAlign {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 600px;
+}
+
+.actionOptionContainer {
+    height: 36px;
+    width: 40px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid rgb(151, 149, 149);
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.noBorderActionOptionContainer{
+    border: none !important;
+}
+
+.dotActionMenu {
+    height: 4px;
+    width: 4px;
+    border-top-left-radius: 2px;
+    margin-right: 3px;
+    background-color: rgba(255, 255, 255, .2);
+    border-top-right-radius: 2px;
+    margin-left: 3px;
+    display: block;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    background-color: #8a8d91;
+    margin-left: 0px;
+}
+
+.actionDots {
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.manageColorCode {
+    background: #F1F4F7;
+    margin: -20px;
+    padding: 20px;
+}
+
+/* Global Antd Designs */
+.ant-layout-sider-trigger {
+  display: none !important;
+}
+
+.ant-layout-content {
+  background: linear-gradient(to top, hsl(214, 84%, 85%), hsla(350, 93%, 84%, 0.2)) !important;
+  padding: 10px 20px;
+}
+
+.ant-table-cell-fix-left {
+  border-radius: 0px !important;
+  border-left: 0px !important;
+}
+
+.ant-table-column-has-sorters {
+  border-radius: 0px !important;
+  border-left: 0px !important;
+}
+
+.body{
+  overflow: hidden;
+}
+
+.dividerForm {
+  height: 0;
+  border-bottom-style: solid;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  border-color: #cbd2d9;
+  background: #dadde1;
+  border-width: 0.01rem;
+  color: #dadde1;
+  line-height: 1.28;
+  width: 100%;
+}
+.companyMenuItem {
+  display: flex;
+  align-items: center;     /* vertical center */
+  justify-content: center; /* horizontal center */
+  gap: 8px;
+  width: 100%;
+}
