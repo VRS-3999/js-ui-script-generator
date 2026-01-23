@@ -1,5 +1,7 @@
 .Header {
   padding: 0 !important;
+  height: 0px;
+  margin-bottom: 60px;
 }
 
 .ant-layout-header {
@@ -205,4 +207,9 @@
   justify-content: center; /* horizontal center */
   gap: 8px;
   width: 100%;
+}
+
+.formDisplay {
+    padding-top: 13px;
+    margin: 10px !important;
 }

@@ -2,58 +2,22 @@
 
 import styles from "../../styles/central.module.css";
 import HeaderDisplay from "../components/HeaderDisplay";
+import {ScriptGeneratorPreview} from "../components/scriptGeneratorPreview";
 import { Layout } from "antd";
+import { DagForm } from "./dagForm";
 
 const { Header } = Layout;
 
 export default function Home() {
   return (
     <>
-      <Header className={styles.Header}>
-        <HeaderDisplay />
-      </Header>
-    <div className={styles.manageColorCode}>
-      <h2 style={{ fontSize: "20px", fontWeight: 600 }}>
-        Airflow Script Generator
-      </h2>
-
-      <p style={{ marginTop: "12px", color: "#555" }}>
-        Generating Apache Airflow DAG scripts...
-      </p>
-
-      <pre
-        style={{
-          marginTop: "16px",
-          padding: "16px",
-          backgroundColor: "#f5f5f5",
-          borderRadius: "6px",
-          fontSize: "14px",
-          overflowX: "auto",
-        }}
-      >
-{`# airflow_dag.py
-
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime
-
-def generate_script():
-    print("Generating Airflow DAG...")
-
-with DAG(
-    dag_id="example_script_generator",
-    start_date=datetime(2024, 1, 1),
-    schedule_interval="@daily",
-    catchup=False
-) as dag:
-
-    generate = PythonOperator(
-        task_id="generate_script",
-        python_callable=generate_script
-    )
-`}
-      </pre>
-  </div>
+      <div>
+        <Header className={styles.Header}>
+          <HeaderDisplay />
+        </Header>
+        <ScriptGeneratorPreview />
+        <DagForm />
+      </div>
     </>
   );
 }

@@ -24,7 +24,7 @@ export default function Home() {
           style={{
             padding: 20,
             background: "#fff",
-            overflow: "hidden",
+            overflow: "scroll",
           }}
         >
           <ScriptGenerator />

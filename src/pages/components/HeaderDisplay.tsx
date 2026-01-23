@@ -26,10 +26,10 @@ const HeaderDisplay = () => {
           </span>
         </div>
 
-        <div className={styles.reviewPublishContainerGlobal}>
+        {/* <div className={styles.reviewPublishContainerGlobal}>
           History
-        </div>
-        <div><ActionMenu /></div>
+        </div> */}
+        {/* <div><ActionMenu /></div> */}
       </div>
     </div>
   );
