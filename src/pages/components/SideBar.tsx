@@ -27,7 +27,7 @@ const SideBar: React.FC<SideBarProps> = ({ collapsed, toggleSidebar }) => {
             width={24}
             height={24}
           />
-          {!collapsed && <span>Company Name</span>}
+          {!collapsed && <span>Script Generator</span>}
         </div>
       ),
     },
