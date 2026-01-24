@@ -56,6 +56,13 @@ export const formConfig: DagFormConfig = {
       label: "Brief Description",
       type: "textarea",
       required: true
+    },
+    {
+      name: "schedule_description",
+      label: "Schedule Description",
+      type: "textarea",
+      required: true,
+      help: "Cron expression will be generated after confirmation"
     }
   ],
 
@@ -68,17 +75,161 @@ export const formConfig: DagFormConfig = {
 
   // DAG-SPECIFIC FIELDS
   dagForms: {
+    /* ─────────────────────────────────────────────
+       BG SQL EXECUTOR
+    ───────────────────────────────────────────── */
     bg_sql_executor: [
       {
-        name: "schedule_description",
-        label: "Schedule Description",
+        name: "sql_source_type",
+        label: "SQL Source",
+        type: "select",
+        required: true,
+        options: [
+          { label: "Inline SQL", value: "inline_sql" },
+          { label: "External SQL File", value: "external_sql" }
+        ]
+      },
+      {
+        name: "inline_sql_query",
+        label: "SQL Query",
         type: "textarea",
         required: true,
-        help: "Cron expression will be generated after confirmation"
+        placeholder: "SELECT * FROM table_name;",
+        showWhen: {
+          field: "sql_source_type",
+          equals: "inline_sql"
+        }
+      },
+      {
+        name: "external_sql_file",
+        label: "Upload SQL File",
+        type: "file",
+        required: true,
+        showWhen: {
+          field: "sql_source_type",
+          equals: "external_sql"
+        }
       }
     ],
-    bt_to_bq_streaming: [],
-    gcs_excel_to_bq: [],
-    custom: []
+
+    /* ─────────────────────────────────────────────
+       BT → BQ STREAMING
+    ───────────────────────────────────────────── */
+    bt_to_bq_streaming: [
+      {
+        name: "bt_instance_id",
+        label: "Bigtable Instance ID",
+        type: "input",
+        required: true
+      },
+      {
+        name: "bt_table_id",
+        label: "Bigtable Table ID",
+        type: "input",
+        required: true
+      },
+      {
+        name: "bt_column_family",
+        label: "Column Family",
+        type: "input",
+        required: true
+      },
+      {
+        name: "bq_dataset_id",
+        label: "BigQuery Dataset ID",
+        type: "input",
+        required: true
+      },
+      {
+        name: "bq_table_id",
+        label: "BigQuery Table ID",
+        type: "input",
+        required: true
+      }
+    ],
+
+    /* ─────────────────────────────────────────────
+       GCS EXCEL → BQ
+    ───────────────────────────────────────────── */
+    gcs_excel_to_bq: [
+      {
+        name: "gcs_source_path",
+        label: "GCS Source Path",
+        type: "input",
+        required: true,
+        placeholder: "gs://bucket/folder/*.xlsx"
+      },
+      {
+        name: "bq_dataset",
+        label: "Destination BigQuery Dataset",
+        type: "input",
+        required: true
+      },
+      {
+        name: "bq_table",
+        label: "Destination BigQuery Table",
+        type: "input",
+        required: true
+      },
+      {
+        name: "auto_fix_option",
+        label: "Auto-Fix Options",
+        type: "select",
+        required: true,
+        options: [
+          {
+            label: "Convert problematic columns to STRING (recommended)",
+            value: "convert_to_string"
+          },
+          {
+            label: "Skip rows with parsing errors",
+            value: "skip_bad_rows"
+          },
+          {
+            label: "Auto-detect and fix encoding issues",
+            value: "fix_encoding"
+          }
+        ]
+      }
+    ],
+
+    /* ─────────────────────────────────────────────
+       CUSTOM DAG
+    ───────────────────────────────────────────── */
+    custom: [
+      {
+        name: "custom_capabilities",
+        label: "Supported Custom Use Cases",
+        type: "select",
+        required: false,
+        options: [
+          { label: "Dataproc processing pipelines", value: "dataproc_processing" },
+          { label: "Bigtable migrations", value: "bt_migration" },
+          { label: "Complex analytics with secrets / Redis", value: "complex_analytics" },
+          { label: "Multi-step workflows with triggers", value: "multi_step_workflows" },
+          { label: "Any other enterprise data pipeline needs", value: "other" }
+        ]
+      },
+      {
+        name: "custom_description",
+        label: "Describe what your DAG should do",
+        type: "textarea",
+        required: true,
+        placeholder: "Explain the workflow, data sources, triggers, and outputs"
+      },
+      {
+        name: "operation_type",
+        label: "Operation Type (Optional – helps generate better samples)",
+        type: "select",
+        required: false,
+        placeholder: "beam_pipeline",
+        options: [
+          { label: "Dataproc Processing", value: "dataproc_processing" },
+          { label: "Bigtable Migration", value: "bt_migration" },
+          { label: "Beam Pipeline", value: "beam_pipeline" },
+          { label: "Complex Analytics", value: "complex_analytics" }
+        ]
+      }
+    ]
   }
 };

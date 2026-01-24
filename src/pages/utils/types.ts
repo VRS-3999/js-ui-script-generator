@@ -3,11 +3,17 @@ export type FieldType =
   | "textarea"
   | "select"
   | "boolean"
-  | "email_list";
+  | "email_list"
+  | "file";
 
 export interface SelectOption {
   label: string;
   value: string;
+}
+
+export interface ShowWhenCondition {
+  field: string;
+  equals: string | boolean;
 }
 
 export interface FormFieldConfig {
@@ -25,6 +31,9 @@ export interface FormFieldConfig {
 
   // select only
   options?: SelectOption[];
+
+  // CONDITIONAL VISIBILITY
+  showWhen?: ShowWhenCondition
 }
 
 export interface EnvironmentConfig {

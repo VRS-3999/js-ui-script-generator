@@ -1,5 +1,6 @@
-import { Form, Input, Select, Switch } from "antd";
+import { Form, Input, Select, Switch, Upload, Button } from "antd";
 import type { Rule } from "antd/es/form";
+import { UploadOutlined } from "@ant-design/icons";
 import { FormFieldConfig } from "../utils/types";
 
 const { TextArea } = Input;
@@ -30,9 +31,16 @@ const renderField = (field: FormFieldConfig) => {
       return (
         <Select
           mode="tags"
-          placeholder="Enter email addresses"
           tokenSeparators={[",", " "]}
+          placeholder="Enter email addresses"
         />
+      );
+
+    case "file":
+      return (
+        <Upload beforeUpload={() => false} maxCount={1}>
+          <Button icon={<UploadOutlined />}>Upload File</Button>
+        </Upload>
       );
 
     default:
@@ -44,10 +52,7 @@ const buildRules = (field: FormFieldConfig): Rule[] => {
   const rules: Rule[] = [];
 
   if (field.required) {
-    rules.push({
-      required: true,
-      message: `${field.label} is required`
-    });
+    rules.push({ required: true, message: `${field.label} is required` });
   }
 
   if (field.pattern) {
@@ -61,20 +66,14 @@ const buildRules = (field: FormFieldConfig): Rule[] => {
     rules.push({
       validator: async (_, value) => {
         if (!value) return Promise.resolve();
-
         const values = Array.isArray(value) ? value : [value];
         const invalid = values.filter(email => {
           const domain = email.split("@")[1];
           return !field.emailDomains?.includes(domain);
         });
-
-        if (invalid.length > 0) {
-          return Promise.reject(
-            new Error(
-              `Allowed domains: ${field.emailDomains.join(", ")}`
-            )
-          );
-        }
+        return invalid.length
+          ? Promise.reject(`Allowed domains: ${field.emailDomains.join(", ")}`)
+          : Promise.resolve();
       }
     });
   }
@@ -84,19 +83,30 @@ const buildRules = (field: FormFieldConfig): Rule[] => {
 
 export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
   fields
-}) => (
-  <>
-    {fields.map(field => (
-      <Form.Item
-        key={field.name}
-        name={field.name}
-        label={field.label}
-        rules={buildRules(field)}
-        help={field.help}
-        valuePropName={field.type === "boolean" ? "checked" : "value"}
-      >
-        {renderField(field)}
-      </Form.Item>
-    ))}
-  </>
-);
+}) => {
+  const form = Form.useFormInstance();
+
+  return (
+    <>
+      {fields.map(field => {
+        if (field.showWhen) {
+          const watched = Form.useWatch(field.showWhen.field, form);
+          if (watched !== field.showWhen.equals) return null;
+        }
+
+        return (
+          <Form.Item
+            key={field.name}
+            name={field.name}
+            label={field.label}
+            rules={buildRules(field)}
+            help={field.help}
+            valuePropName={field.type === "boolean" ? "checked" : "value"}
+          >
+            {renderField(field)}
+          </Form.Item>
+        );
+      })}
+    </>
+  );
+};
