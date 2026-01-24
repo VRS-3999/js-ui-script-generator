@@ -13,18 +13,18 @@ const HeaderDisplay = () => {
           Updated today at 9:14 AM
         </div>
 
-        <div className={styles.refreshBtnContainerGlobal}>
+        {/* <div className={styles.refreshBtnContainerGlobal}>
           <div className={styles.refreshBtnHeaderGlobal}></div>
-        </div>
+        </div> */}
 
-        <div
+        {/* <div
           className={`${styles.draftBtnContainerGlobal} ${styles.marginLeft8}`}
         >
           <div className={styles.draftBtnHeaderGlobal}></div>
           <span className={styles.draftTitleHeaderGlobal}>
             Clear Space
           </span>
-        </div>
+        </div> */}
 
         {/* <div className={styles.reviewPublishContainerGlobal}>
           History
