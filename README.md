@@ -127,6 +127,36 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/b
   }
 }
 ```
+BELOW IS BE REQUIREMENT
+```
+{
+  "dag_id": "paops-auto-pa-bg-sql",
+  "project_id": "anbc-pss-dev",
+  "tenant": "paops",
+  "app": "auto_pa",
+  "lob": "pss",
+  "region": "us-east4",
+  "username": "rohit_patidar",
+  "cost_center": "0000230810",
+  "dag_repo": "auto-pa-features-update-bq",
+  "dag_tags": [
+    "tenant:paops",
+    "app:auto_pa",
+    "owner:ownermail@cvshealth.com"
+  ],
+  "bq_tenant": "pmcydealclnt",
+  "bq_table_id": "auto_pa_audit_data_final",
+  "bq_streaming_table_id": "auto_pa_audit_data_streaming_temp",
+  "to_emails": ["test3@cvshealth.com"],
+  "cc_emails": ["test4@cvshealth.com"],
+  "owner_email": "ownermail@cvshealth.com",
+  "notify_success": true,
+  "notify_failure": true,
+  "schedule_interval": "0 * * * *",
+  "sql_file_name": "bq_stream_table_to_view.sql"
+}
+```
+
 ```
 {
   "dag_type": "bt_to_bq_streaming",
@@ -235,3 +265,10 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/b
   "operation_type": "dataproc_processing"
 }
 ```
+
+# API ENDPOINTS
+1. Converting Schedule Description to cron Job
+2. 
+
+# UI Enhancement
+1. Based on Toggle for notification, Input should be enabled for each environment for collecting email

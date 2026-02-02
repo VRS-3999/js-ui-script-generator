@@ -6,14 +6,22 @@ import { DagType } from "../utils/types";
 import styles from "../../styles/central.module.css"
 import { generateDagScript } from "../api/generateScript";
 
-export const DagForm: React.FC = () => {
+type DagFormProps = {
+    setDagCode: React.Dispatch<React.SetStateAction<string | null>>;
+};
+
+export const DagForm: React.FC<DagFormProps> = ({
+    setDagCode,
+}) => {
     const [form] = Form.useForm();
     const [dagType, setDagType] = useState<DagType>();
 
 
     const onSubmit = async (values: any) => {
         try {
-            const response = await generateDagScript(values);
+            const response = await generateDagScript(values) as any;
+            const dagCode = response?.dag_code;
+            setDagCode(dagCode ?? "DAG CODE NOT GENERATED");
         } catch (err) {
             console.error("Submission failed", err);
         }

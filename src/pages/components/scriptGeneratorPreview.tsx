@@ -1,9 +1,39 @@
-import { Collapse, Typography, Divider } from "antd";
+import { Collapse, Typography, Divider, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 
 const { Panel } = Collapse;
 const { Text, Paragraph } = Typography;
 
-export const ScriptGeneratorPreview: React.FC = () => {
+type ScriptGeneratorPreviewProps = {
+  dagCode: string | null;
+};
+
+export const ScriptGeneratorPreview: React.FC<ScriptGeneratorPreviewProps> = ({
+  dagCode,
+}) => {
+  const downloadDag = () => {
+    if (!dagCode) return;
+
+    const now = new Date();
+    const timestamp = now
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace("T", "_")
+      .split(".")[0];
+
+    const fileName = `dag_${timestamp}.py`;
+
+    const blob = new Blob([dagCode], { type: "text/x-python" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Collapse
       accordion
@@ -21,7 +51,7 @@ export const ScriptGeneratorPreview: React.FC = () => {
             overflowX: "auto",
           }}
         >
-{`# airflow_dag.py
+          {`# airflow_dag.py
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -101,6 +131,37 @@ with DAG(
           <Text strong>Timezone:</Text> UTC (Airflow standard)
         </Paragraph>
       </Panel>
+
+      {dagCode &&
+        <Panel
+          header="Generated DAG Code"
+          key="generatedDAGCode"
+          extra={
+            <Button
+              type="primary"
+              size="small"
+              icon={<DownloadOutlined />}
+              onClick={(e) => {
+                e.stopPropagation(); // prevents panel collapse
+                downloadDag();
+              }}
+            >
+              Download
+            </Button>
+          }
+        >
+          <pre
+            style={{
+              padding: "16px",
+              backgroundColor: "#f5f5f5",
+              borderRadius: "6px",
+              overflowX: "auto",
+            }}
+          >
+            {dagCode}
+          </pre>
+        </Panel>
+      }
     </Collapse>
   );
 };
