@@ -26,6 +26,24 @@ export const formConfig: DagFormConfig = {
       help: "Format: {LOB}-{repo-name}-{dag-name}"
     },
     {
+      name: "tenant",
+      label: "Tenant",
+      type: "input",
+      required: true,
+    },
+    {
+      name: "lob",
+      label: "LOB",
+      type: "input",
+      required: true,
+    },
+    {
+      name: "app",
+      label: "Application",
+      type: "input",
+      required: true,
+    },
+    {
       name: "username",
       label: "Username",
       type: "input",
@@ -40,6 +58,19 @@ export const formConfig: DagFormConfig = {
       type: "input",
       required: true,
       emailDomains: ["cvshealth.com", "aetna.com"]
+    },
+    {
+      name: "cost_center",
+      label: "Cost Center",
+      type: "input",
+      required: true
+    },
+    {
+      name: "schedule_interval",
+      label: "Schedule (Cron / Preset)",
+      type: "input",
+      required: true,
+      help: "Stored as Airflow schedule_interval (UTC)"
     },
     {
       name: "notify_success",
@@ -109,8 +140,29 @@ export const formConfig: DagFormConfig = {
           field: "sql_source_type",
           equals: "external_sql"
         }
+      },
+
+      /* BQ-specific */
+      {
+        name: "bq_tenant",
+        label: "BigQuery Tenant",
+        type: "input",
+        required: true
+      },
+      {
+        name: "bq_table_id",
+        label: "BigQuery Table",
+        type: "input",
+        required: true
+      },
+      {
+        name: "bq_streaming_table_id",
+        label: "BQ Streaming Temp Table",
+        type: "input",
+        required: true
       }
     ],
+
 
     /* ─────────────────────────────────────────────
        BT → BQ STREAMING
@@ -129,14 +181,14 @@ export const formConfig: DagFormConfig = {
         required: true
       },
       {
-        name: "bt_column_family",
-        label: "Column Family",
+        name: "bt_column_id",
+        label: "Bigtable Column Family",
         type: "input",
         required: true
       },
       {
-        name: "bq_dataset_id",
-        label: "BigQuery Dataset ID",
+        name: "bq_tenant",
+        label: "BigQuery Tenant",
         type: "input",
         required: true
       },
@@ -145,8 +197,21 @@ export const formConfig: DagFormConfig = {
         label: "BigQuery Table ID",
         type: "input",
         required: true
+      },
+      {
+        name: "temp_bucket",
+        label: "Temporary GCS Bucket",
+        type: "input",
+        required: true
+      },
+      {
+        name: "dataflow_job_name",
+        label: "Dataflow Job Name",
+        type: "input",
+        required: true
       }
     ],
+
 
     /* ─────────────────────────────────────────────
        GCS EXCEL → BQ
