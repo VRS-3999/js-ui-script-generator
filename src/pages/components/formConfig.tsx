@@ -70,7 +70,8 @@ export const formConfig: DagFormConfig = {
       label: "Schedule (Cron / Preset)",
       type: "input",
       required: true,
-      help: "Stored as Airflow schedule_interval (UTC)"
+      help: "Stored as Airflow schedule_interval (UTC)",
+      readOnly: true,
     },
     {
       name: "notify_success",
@@ -93,7 +94,12 @@ export const formConfig: DagFormConfig = {
       label: "Schedule Description",
       type: "textarea",
       required: true,
-      help: "Cron expression will be generated after confirmation"
+      help: "Cron expression will be generated after confirmation",
+      action: {
+        label: "Generate Cron",
+        targetField: "schedule_interval",
+        actionType: "GENERATE_CRON"
+      }
     }
   ],
 

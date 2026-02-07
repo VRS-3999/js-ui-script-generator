@@ -23,3 +23,26 @@ export const generateDagScript = async (payload: any) => {
     };
   }
 };
+
+export const generateCronScheduleSyntax = async (payload: any) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/cron-job-schedule-syntax`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error generating Cron Schedule Syntax script:", error);
+    throw error.response?.data || {
+      message: "Failed to generate Cron Schedule Syntax script"
+    };
+  }
+};
+
+

@@ -1,52 +1,11 @@
-import { Form, Input, Select, Switch, Upload, Button } from "antd";
+import React, { useState } from "react";
+import { Form, Input, Select, Switch, Upload, Button, Space, message } from "antd";
 import type { Rule } from "antd/es/form";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { FormFieldConfig } from "../utils/types";
+import { generateCronScheduleSyntax } from "../api/generateScript";
 
 const { TextArea } = Input;
-
-const renderField = (field: FormFieldConfig) => {
-  switch (field.type) {
-    case "input":
-      return <Input placeholder={field.placeholder} />;
-
-    case "textarea":
-      return <TextArea rows={4} placeholder={field.placeholder} />;
-
-    case "select":
-      return (
-        <Select placeholder={field.placeholder}>
-          {field.options?.map(opt => (
-            <Select.Option key={opt.value} value={opt.value}>
-              {opt.label}
-            </Select.Option>
-          ))}
-        </Select>
-      );
-
-    case "boolean":
-      return <Switch />;
-
-    case "email_list":
-      return (
-        <Select
-          mode="tags"
-          tokenSeparators={[",", " "]}
-          placeholder="Enter email addresses"
-        />
-      );
-
-    case "file":
-      return (
-        <Upload beforeUpload={() => false} maxCount={1}>
-          <Button icon={<UploadOutlined />}>Upload File</Button>
-        </Upload>
-      );
-
-    default:
-      return null;
-  }
-};
 
 const buildRules = (field: FormFieldConfig): Rule[] => {
   const rules: Rule[] = [];
@@ -85,6 +44,103 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
   fields
 }) => {
   const form = Form.useFormInstance();
+  const [loadingField, setLoadingField] = useState<string | null>(null);
+
+  const handleAction = async (field: FormFieldConfig) => {
+    if (!field.action) return;
+
+    const description = form.getFieldValue(field.name);
+    if (!description) {
+      message.warning("Please enter schedule description first");
+      return;
+    }
+
+    try {
+      setLoadingField(field.name);
+
+      let result;
+      switch (field.action.actionType) {
+        case "GENERATE_CRON":
+          result = await generateCronScheduleSyntax({
+            prompt: description
+          });
+          break;
+
+        default:
+          throw new Error("Unsupported action");
+      }
+
+      const cron = result?.data;
+      if (!cron) {
+        throw new Error("Invalid API response");
+      }
+
+      form.setFieldValue(field.action.targetField, cron);
+      message.success("Cron generated successfully");
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to generate cron expression");
+    } finally {
+      setLoadingField(null);
+    }
+  };
+
+  const renderField = (field: FormFieldConfig) => {
+    switch (field.type) {
+      case "input":
+        return <Input placeholder={field.placeholder} readOnly={field.readOnly} />;
+
+      case "textarea":
+        return (
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <TextArea rows={4} placeholder={field.placeholder} />
+            {field.action && (
+              <Button
+                type="primary"
+                icon={<ThunderboltOutlined />}
+                loading={loadingField === field.name}
+                onClick={() => handleAction(field)}
+              >
+                {field.action.label}
+              </Button>
+            )}
+          </Space>
+        );
+
+      case "select":
+        return (
+          <Select placeholder={field.placeholder}>
+            {field.options?.map(opt => (
+              <Select.Option key={opt.value} value={opt.value}>
+                {opt.label}
+              </Select.Option>
+            ))}
+          </Select>
+        );
+
+      case "boolean":
+        return <Switch />;
+
+      case "email_list":
+        return (
+          <Select
+            mode="tags"
+            tokenSeparators={[",", " "]}
+            placeholder="Enter email addresses"
+          />
+        );
+
+      case "file":
+        return (
+          <Upload beforeUpload={() => false} maxCount={1}>
+            <Button icon={<UploadOutlined />}>Upload File</Button>
+          </Upload>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <>
