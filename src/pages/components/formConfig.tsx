@@ -22,12 +22,25 @@ export const formConfig: DagFormConfig = {
       label: "DAG ID",
       type: "input",
       required: true,
-      placeholder: "LOB-repo-name-dag-name",
-      help: "Format: {LOB}-{repo-name}-{dag-name}"
+      readOnly: true,
+      placeholder: "tenant-repo-name-dag-name",
+      help: "Auto-generated as {tenant}-{dag_repo}-{dag_name}"
     },
     {
       name: "tenant",
       label: "Tenant",
+      type: "input",
+      required: true,
+    },
+    {
+      name: "dag_repo",
+      label: "DAG Repo Name",
+      type: "input",
+      required: true,
+    },
+    {
+      name: "dag_name",
+      label: "DAG Name",
       type: "input",
       required: true,
     },

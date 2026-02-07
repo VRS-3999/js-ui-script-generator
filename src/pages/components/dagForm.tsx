@@ -1,5 +1,5 @@
 import { Form, Button, Select, Divider } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formConfig } from "./formConfig";
 import { DynamicFormFields } from "../components/DynamicFormFields";
 import { DagType } from "../utils/types";
@@ -15,6 +15,21 @@ export const DagForm: React.FC<DagFormProps> = ({
 }) => {
     const [form] = Form.useForm();
     const [dagType, setDagType] = useState<DagType>();
+
+    const tenant = Form.useWatch("tenant", form);
+    const repo = Form.useWatch("dag_repo", form);
+    const dagName = Form.useWatch("dag_name", form);
+
+    useEffect(() => {
+
+        const dagId = `${tenant}-${repo}-${dagName}`
+            .toLowerCase()
+            .replace(/[^a-z0-9-]/g, "-")
+            .replace(/--+/g, "-")
+            .replace(/^-|-$/g, "");
+
+        form.setFieldsValue({ dag_id: dagId });
+    }, [tenant, repo, dagName]);
 
 
     const onSubmit = async (values: any) => {
