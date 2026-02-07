@@ -17,19 +17,23 @@ export const DagForm: React.FC<DagFormProps> = ({
     const [dagType, setDagType] = useState<DagType>();
 
     const tenant = Form.useWatch("tenant", form);
-    const repo = Form.useWatch("dag_repo", form);
+    const dagRepo = Form.useWatch("dag_repo", form);
     const dagName = Form.useWatch("dag_name", form);
 
     useEffect(() => {
+        if (!tenant || !dagRepo || !dagName) {
+            form.setFieldsValue({ dag_id: "" });
+            return;
+        }
 
-        const dagId = `${tenant}-${repo}-${dagName}`
+        const dagId = `${tenant}-${dagRepo}-${dagName}`
             .toLowerCase()
             .replace(/[^a-z0-9-]/g, "-")
             .replace(/--+/g, "-")
             .replace(/^-|-$/g, "");
 
         form.setFieldsValue({ dag_id: dagId });
-    }, [tenant, repo, dagName]);
+    }, [tenant, dagRepo, dagName, form]);
 
 
     const onSubmit = async (values: any) => {

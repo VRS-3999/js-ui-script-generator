@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { Form, Input, Select, Switch, Upload, Button, Space, message, Modal } from "antd";
+import {
+  Form,
+  Input,
+  Select,
+  Switch,
+  Upload,
+  Button,
+  Space,
+  message,
+  Modal
+} from "antd";
 import type { Rule } from "antd/es/form";
 import { UploadOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { FormFieldConfig } from "../utils/types";
@@ -7,11 +17,15 @@ import { generateCronScheduleSyntax } from "../api/generateScript";
 
 const { TextArea } = Input;
 
+/* ------------------------- RULE BUILDER ------------------------- */
 const buildRules = (field: FormFieldConfig): Rule[] => {
   const rules: Rule[] = [];
 
   if (field.required) {
-    rules.push({ required: true, message: `${field.label} is required` });
+    rules.push({
+      required: true,
+      message: `${field.label} is required`
+    });
   }
 
   if (field.pattern) {
@@ -25,13 +39,17 @@ const buildRules = (field: FormFieldConfig): Rule[] => {
     rules.push({
       validator: async (_, value) => {
         if (!value) return Promise.resolve();
+
         const values = Array.isArray(value) ? value : [value];
         const invalid = values.filter(email => {
           const domain = email.split("@")[1];
-          return !field.emailDomains?.includes(domain);
+          return !field.emailDomains!.includes(domain);
         });
+
         return invalid.length
-          ? Promise.reject(`Allowed domains: ${field.emailDomains.join(", ")}`)
+          ? Promise.reject(
+              new Error(`Allowed domains: ${field.emailDomains!.join(", ")}`)
+            )
           : Promise.resolve();
       }
     });
@@ -40,12 +58,35 @@ const buildRules = (field: FormFieldConfig): Rule[] => {
   return rules;
 };
 
+/* ---------------------- MAIN COMPONENT ---------------------- */
 export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
   fields
 }) => {
   const form = Form.useFormInstance();
   const [loadingField, setLoadingField] = useState<string | null>(null);
 
+  /* ---------- COLLECT ALL showWhen DEPENDENCIES ---------- */
+  const showWhenFields = Array.from(
+    new Set(
+      fields
+        .filter(f => f.showWhen)
+        .map(f => f.showWhen!.field)
+    )
+  );
+
+  /* ---------- WATCH ALL DEPENDENCIES AT ONCE ---------- */
+  const watchedValues = Form.useWatch(showWhenFields, form) || [];
+
+  /* ---------- BUILD LOOKUP MAP ---------- */
+  const watchedMap = showWhenFields.reduce<Record<string, any>>(
+    (acc, field, index) => {
+      acc[field] = watchedValues[index];
+      return acc;
+    },
+    {}
+  );
+
+  /* -------------------- ACTION HANDLER -------------------- */
   const handleAction = async (field: FormFieldConfig) => {
     if (!field.action) return;
 
@@ -67,21 +108,19 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
           break;
 
         default:
-          throw new Error("Unsupported action");
+          throw new Error("Unsupported action type");
       }
 
       const cron = result?.data;
-      if (!cron) {
-        throw new Error("Invalid API response");
-      }
+      if (!cron) throw new Error("Invalid cron response");
 
       Modal.confirm({
         title: "Confirm Schedule",
         content: (
-          <div>
-            <p>The following cron expression will be used (UTC):</p>
+          <>
+            <p>The following cron expression (UTC) will be applied:</p>
             <pre style={{ fontWeight: 600 }}>{cron}</pre>
-          </div>
+          </>
         ),
         okText: "Use this schedule",
         cancelText: "Cancel",
@@ -93,7 +132,6 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
           form.setFieldValue(field.action!.targetField, null);
         }
       });
-
     } catch (err) {
       console.error(err);
       message.error("Failed to generate cron expression");
@@ -102,10 +140,16 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
     }
   };
 
+  /* ---------------------- FIELD RENDERER ---------------------- */
   const renderField = (field: FormFieldConfig) => {
     switch (field.type) {
       case "input":
-        return <Input placeholder={field.placeholder} readOnly={field.readOnly} />;
+        return (
+          <Input
+            placeholder={field.placeholder}
+            readOnly={field.readOnly}
+          />
+        );
 
       case "textarea":
         return (
@@ -159,12 +203,15 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
     }
   };
 
+  /* ------------------------- RENDER ------------------------- */
   return (
     <>
       {fields.map(field => {
         if (field.showWhen) {
-          const watched = Form.useWatch(field.showWhen.field, form);
-          if (watched !== field.showWhen.equals) return null;
+          const actualValue = watchedMap[field.showWhen.field];
+          if (actualValue !== field.showWhen.equals) {
+            return null;
+          }
         }
 
         return (
