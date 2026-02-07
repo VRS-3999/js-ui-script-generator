@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, Select, Switch, Upload, Button, Space, message } from "antd";
+import { Form, Input, Select, Switch, Upload, Button, Space, message, Modal } from "antd";
 import type { Rule } from "antd/es/form";
 import { UploadOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { FormFieldConfig } from "../utils/types";
@@ -75,8 +75,25 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
         throw new Error("Invalid API response");
       }
 
-      form.setFieldValue(field.action.targetField, cron);
-      message.success("Cron generated successfully");
+      Modal.confirm({
+        title: "Confirm Schedule",
+        content: (
+          <div>
+            <p>The following cron expression will be used (UTC):</p>
+            <pre style={{ fontWeight: 600 }}>{cron}</pre>
+          </div>
+        ),
+        okText: "Use this schedule",
+        cancelText: "Cancel",
+        onOk: () => {
+          form.setFieldValue(field.action!.targetField, cron);
+          message.success("Schedule applied successfully");
+        },
+        onCancel: () => {
+          form.setFieldValue(field.action!.targetField, null);
+        }
+      });
+
     } catch (err) {
       console.error(err);
       message.error("Failed to generate cron expression");
