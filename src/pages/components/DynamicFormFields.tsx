@@ -48,8 +48,8 @@ const buildRules = (field: FormFieldConfig): Rule[] => {
 
         return invalid.length
           ? Promise.reject(
-              new Error(`Allowed domains: ${field.emailDomains!.join(", ")}`)
-            )
+            new Error(`Allowed domains: ${field.emailDomains!.join(", ")}`)
+          )
           : Promise.resolve();
       }
     });
@@ -66,25 +66,25 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
   const [loadingField, setLoadingField] = useState<string | null>(null);
 
   /* ---------- COLLECT ALL showWhen DEPENDENCIES ---------- */
-  const showWhenFields = Array.from(
-    new Set(
-      fields
-        .filter(f => f.showWhen)
-        .map(f => f.showWhen!.field)
-    )
-  );
+  const watchedMap: Record<string, any> = {};
 
-  /* ---------- WATCH ALL DEPENDENCIES AT ONCE ---------- */
-  const watchedValues = Form.useWatch(showWhenFields, form) || [];
+  fields.forEach(field => {
+    if (field.showWhen) {
+      watchedMap[field.showWhen.field] =
+        Form.useWatch(field.showWhen.field, form);
+    }
+  });
 
-  /* ---------- BUILD LOOKUP MAP ---------- */
-  const watchedMap = showWhenFields.reduce<Record<string, any>>(
-    (acc, field, index) => {
-      acc[field] = watchedValues[index];
-      return acc;
-    },
-    {}
-  );
+  React.useEffect(() => {
+    fields.forEach(field => {
+      if (field.showWhen) {
+        const actualValue = watchedMap[field.showWhen.field];
+        if (actualValue !== field.showWhen.equals) {
+          form.setFieldValue(field.name, undefined);
+        }
+      }
+    });
+  }, [JSON.stringify(watchedMap)]);
 
   /* -------------------- ACTION HANDLER -------------------- */
   const handleAction = async (field: FormFieldConfig) => {
