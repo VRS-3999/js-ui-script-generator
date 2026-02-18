@@ -235,47 +235,120 @@ export const formConfig: DagFormConfig = {
     /* ─────────────────────────────────────────────
        GCS EXCEL → BQ
     ───────────────────────────────────────────── */
+    /* ─────────────────────────────────────────────
+   GCS FILE (CSV / EXCEL) → BQ
+───────────────────────────────────────────── */
     gcs_excel_to_bq: [
+      {
+        name: "table_name",
+        label: "Table Name",
+        type: "input",
+        required: true,
+        placeholder: "Enter Table Name"
+      },
       {
         name: "gcs_source_path",
         label: "GCS Source Path",
         type: "input",
         required: true,
-        placeholder: "gs://bucket/folder/*.xlsx"
+        placeholder: "gs://bucket/folder/file.csv or *.xlsx"
       },
       {
-        name: "bq_dataset",
-        label: "Destination BigQuery Dataset",
-        type: "input",
-        required: true
-      },
-      {
-        name: "bq_table",
-        label: "Destination BigQuery Table",
-        type: "input",
-        required: true
-      },
-      {
-        name: "auto_fix_option",
-        label: "Auto-Fix Options",
+        name: "source_format",
+        label: "Source Format",
         type: "select",
         required: true,
         options: [
-          {
-            label: "Convert problematic columns to STRING (recommended)",
-            value: "convert_to_string"
-          },
-          {
-            label: "Skip rows with parsing errors",
-            value: "skip_bad_rows"
-          },
-          {
-            label: "Auto-detect and fix encoding issues",
-            value: "fix_encoding"
-          }
+          { label: "CSV", value: "csv" },
+          { label: "Excel (XLSX)", value: "excel" }
         ]
+      },
+      {
+        name: "skip_leading_rows",
+        label: "Skip Leading Rows",
+        type: "number",
+        required: false,
+        min: 0,
+        step: 1
+      },
+      {
+        name: "field_delimiter",
+        label: "Field Delimiter",
+        type: "input",
+        required: false,
+        placeholder: ",",
+        help: "Used only when source format is CSV",
+        showWhen: {
+          field: "source_format",
+          equals: "csv"
+        }
+      },
+      {
+        name: "autodetect",
+        label: "Auto-detect Schema",
+        type: "boolean",
+        required: false
+      },
+      {
+        name: "allow_jagged_rows",
+        label: "Allow Jagged Rows",
+        type: "boolean",
+        required: false,
+        showWhen: {
+          field: "source_format",
+          equals: "csv"
+        }
+      },
+      {
+        name: "ignore_unknown_values",
+        label: "Ignore Unknown Values",
+        type: "boolean",
+        required: false
+      },
+      {
+        name: "allow_quoted_newlines",
+        label: "Allow Quoted Newlines",
+        type: "boolean",
+        required: false,
+        showWhen: {
+          field: "source_format",
+          equals: "csv"
+        }
+      },
+      {
+        name: "table_schema",
+        label: "Table Schema (JSON Format)",
+        type: "textarea",
+        required: false,
+        placeholder: '[{"name":"col1","type":"STRING"}]',
+        help: "Provide JSON schema if autodetect is false"
+      },
+      {
+        name: "create_table",
+        label: "Create Table If Not Exists",
+        type: "boolean",
+        required: false
+      },
+      {
+        name: "create_table_sql",
+        label: "Create Table SQL",
+        type: "textarea",
+        required: false,
+        placeholder: "CREATE TABLE dataset.table (...)",
+        showWhen: {
+          field: "create_table",
+          equals: true
+        }
+      },
+      {
+        name: "load_data_sql",
+        label: "Load Data SQL (Optional Override)",
+        type: "textarea",
+        required: false,
+        placeholder: "LOAD DATA INTO dataset.table FROM FILES(...)"
       }
     ],
+
 
     /* ─────────────────────────────────────────────
        CUSTOM DAG

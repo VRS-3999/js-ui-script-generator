@@ -4,7 +4,8 @@ export type FieldType =
   | "select"
   | "boolean"
   | "email_list"
-  | "file";
+  | "file"
+  | "number";
 
 /* ──────────────────────────────
    SELECT OPTIONS
@@ -19,7 +20,7 @@ export interface SelectOption {
 ────────────────────────────── */
 export interface ShowWhenCondition {
   field: string;
-  equals: string | boolean;
+  equals: string | boolean | number;
 }
 
 /* ──────────────────────────────
@@ -46,6 +47,11 @@ export interface FormFieldConfig {
   pattern?: string;
   patternMessage?: string;
   emailDomains?: string[];
+
+  // number-specific validation
+  min?: number;
+  max?: number;
+  step?: number;
 
   // select only
   options?: SelectOption[];

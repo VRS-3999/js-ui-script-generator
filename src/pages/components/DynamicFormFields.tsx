@@ -8,7 +8,8 @@ import {
   Button,
   Space,
   message,
-  Modal
+  Modal,
+  InputNumber
 } from "antd";
 import type { Rule } from "antd/es/form";
 import { UploadOutlined, ThunderboltOutlined } from "@ant-design/icons";
@@ -33,6 +34,41 @@ const buildRules = (field: FormFieldConfig): Rule[] => {
       pattern: new RegExp(field.pattern),
       message: field.patternMessage
     });
+  }
+
+  if (field.type === "number") {
+    rules.push({
+      type: "number",
+      transform: (value) => {
+        if (value === undefined || value === null || value === "") {
+          return undefined;
+        }
+        return Number(value);
+      },
+      message: `${field.label} must be a valid number`
+    });
+
+    if (field.min !== undefined) {
+      rules.push({
+        validator: (_, value) => {
+          if (value === undefined || value === null) return Promise.resolve();
+          return value >= field.min!
+            ? Promise.resolve()
+            : Promise.reject(new Error(`Minimum value is ${field.min}`));
+        }
+      });
+    }
+
+    if (field.max !== undefined) {
+      rules.push({
+        validator: (_, value) => {
+          if (value === undefined || value === null) return Promise.resolve();
+          return value <= field.max!
+            ? Promise.resolve()
+            : Promise.reject(new Error(`Maximum value is ${field.max}`));
+        }
+      });
+    }
   }
 
   if (field.emailDomains) {
@@ -66,25 +102,22 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
   const [loadingField, setLoadingField] = useState<string | null>(null);
 
   /* ---------- COLLECT ALL showWhen DEPENDENCIES ---------- */
-  const watchedMap: Record<string, any> = {};
-
-  fields.forEach(field => {
-    if (field.showWhen) {
-      watchedMap[field.showWhen.field] =
-        Form.useWatch(field.showWhen.field, form);
-    }
-  });
+  const formValues = Form.useWatch([], form);
 
   React.useEffect(() => {
+    if (!formValues) return;
+
     fields.forEach(field => {
       if (field.showWhen) {
-        const actualValue = watchedMap[field.showWhen.field];
+        const actualValue = formValues[field.showWhen.field];
+
         if (actualValue !== field.showWhen.equals) {
           form.setFieldValue(field.name, undefined);
         }
       }
     });
-  }, [JSON.stringify(watchedMap)]);
+  }, [formValues, fields, form]);
+
 
   /* -------------------- ACTION HANDLER -------------------- */
   const handleAction = async (field: FormFieldConfig) => {
@@ -182,6 +215,18 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
       case "boolean":
         return <Switch />;
 
+      case "number":
+        return (
+          <InputNumber
+            style={{ width: "100%" }}
+            placeholder={field.placeholder}
+            min={field.min}
+            max={field.max}
+            step={field.step ?? 1}
+            disabled={field.disabled}
+          />
+        );
+
       case "email_list":
         return (
           <Select
@@ -208,7 +253,7 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
     <>
       {fields.map(field => {
         if (field.showWhen) {
-          const actualValue = watchedMap[field.showWhen.field];
+          const actualValue = formValues?.[field.showWhen.field];
           if (actualValue !== field.showWhen.equals) {
             return null;
           }
