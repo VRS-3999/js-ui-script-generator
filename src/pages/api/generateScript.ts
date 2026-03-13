@@ -46,3 +46,44 @@ export const generateCronScheduleSyntax = async (payload: any) => {
 };
 
 
+export const getManagerDefaults = async (managerName: string) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/manager-defaults/${managerName}`,
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching manager defaults:", error);
+
+    throw error.response?.data || {
+      message: "Failed to fetch manager defaults"
+    };
+  }
+};
+
+export const getManagers = async () => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/managers`,
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching managers:", error);
+
+    throw error.response?.data || {
+      message: "Failed to fetch managers"
+    };
+  }
+};

@@ -14,7 +14,7 @@ import {
 import type { Rule } from "antd/es/form";
 import { UploadOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { FormFieldConfig } from "../utils/types";
-import { generateCronScheduleSyntax } from "../api/generateScript";
+import { generateCronScheduleSyntax, getManagerDefaults, getManagers } from "../api/generateScript";
 
 const { TextArea } = Input;
 
@@ -100,9 +100,11 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
 }) => {
   const form = Form.useFormInstance();
   const [loadingField, setLoadingField] = useState<string | null>(null);
+  const [managers, setManagers] = useState<any[]>([]);
 
   /* ---------- COLLECT ALL showWhen DEPENDENCIES ---------- */
   const formValues = Form.useWatch([], form);
+  const managerValue = Form.useWatch("manager", form);
 
   React.useEffect(() => {
     if (!formValues) return;
@@ -118,6 +120,44 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
     });
   }, [formValues, fields, form]);
 
+  React.useEffect(() => {
+    if (!managerValue) return;
+
+    const fetchDefaults = async () => {
+      try {
+        const result = await getManagerDefaults(managerValue);
+
+        if (result?.data) {
+          form.setFieldsValue({
+            ...result.data
+          });
+
+        }
+      } catch (err) {
+        console.error(err);
+        message.error("Failed to load manager defaults");
+      }
+    };
+
+    fetchDefaults();
+  }, [managerValue, form]);
+
+  React.useEffect(() => {
+    const fetchManagers = async () => {
+      try {
+        const res = await getManagers();
+
+        if (res?.data) {
+          setManagers(res.data);
+        }
+      } catch (err) {
+        console.error(err);
+        message.error("Failed to load managers");
+      }
+    };
+
+    fetchManagers();
+  }, []);
 
   /* -------------------- ACTION HANDLER -------------------- */
   const handleAction = async (field: FormFieldConfig) => {
@@ -186,22 +226,35 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
 
       case "textarea":
         return (
-          <Space direction="vertical" style={{ width: "100%" }}>
+          <>
             <TextArea rows={4} placeholder={field.placeholder} />
-            {field.action && (
-              <Button
-                type="primary"
-                icon={<ThunderboltOutlined />}
-                loading={loadingField === field.name}
-                onClick={() => handleAction(field)}
-              >
-                {field.action.label}
-              </Button>
-            )}
-          </Space>
-        );
 
+            {field.action && (
+              <div style={{ marginTop: 8 }}>
+                <Button
+                  type="primary"
+                  icon={<ThunderboltOutlined />}
+                  loading={loadingField === field.name}
+                  onClick={() => handleAction(field)}
+                >
+                  {field.action.label}
+                </Button>
+              </div>
+            )}
+          </>
+        );
+        
       case "select":
+        if (field.name === "manager") {
+          return (
+            <Select
+              placeholder={field.placeholder}
+              options={managers}
+              showSearch
+              optionFilterProp="label"
+            />
+          );
+        }
         return (
           <Select placeholder={field.placeholder}>
             {field.options?.map(opt => (

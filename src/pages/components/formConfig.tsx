@@ -18,6 +18,12 @@ export const formConfig: DagFormConfig = {
   // COMMON FIELDS (always present)
   commonFields: [
     {
+      name: "manager",
+      label: "Manager",
+      type: "select",
+      placeholder: "Select Manager"
+    },
+    {
       name: "dag_id",
       label: "DAG ID",
       type: "input",
@@ -84,7 +90,19 @@ export const formConfig: DagFormConfig = {
       type: "input",
       required: true,
       help: "Stored as Airflow schedule_interval (UTC)",
-      readOnly: true,
+      readOnly: false,
+    },
+    {
+      name: "schedule_description",
+      label: "Schedule Description",
+      type: "textarea",
+      required: true,
+      help: "Cron expression will be generated after confirmation",
+      action: {
+        label: "Generate Cron",
+        targetField: "schedule_interval",
+        actionType: "GENERATE_CRON"
+      }
     },
     {
       name: "notify_success",
@@ -101,18 +119,6 @@ export const formConfig: DagFormConfig = {
       label: "Brief Description",
       type: "textarea",
       required: true
-    },
-    {
-      name: "schedule_description",
-      label: "Schedule Description",
-      type: "textarea",
-      required: true,
-      help: "Cron expression will be generated after confirmation",
-      action: {
-        label: "Generate Cron",
-        targetField: "schedule_interval",
-        actionType: "GENERATE_CRON"
-      }
     }
   ],
 
