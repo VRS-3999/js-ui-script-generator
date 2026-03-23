@@ -227,7 +227,10 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
       case "textarea":
         return (
           <>
-            <TextArea rows={4} placeholder={field.placeholder} />
+            <TextArea rows={4} placeholder={field.placeholder} 
+              onChange={(e) => {
+              form.setFieldValue(field.name, e.target.value);
+            }}/>
 
             {field.action && (
               <div style={{ marginTop: 8 }}>
