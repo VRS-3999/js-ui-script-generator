@@ -6,7 +6,6 @@ import {
   Switch,
   Upload,
   Button,
-  Space,
   message,
   Modal,
   InputNumber
@@ -100,11 +99,32 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
 }) => {
   const form = Form.useFormInstance();
   const [loadingField, setLoadingField] = useState<string | null>(null);
-  const [managers, setManagers] = useState<any[]>([]);
+  const [managers, setManagers] = useState<{ label: string; value: string }[]>([]);
+
+  const [inlineSqlKeys, setInlineSqlKeys] = useState<number[]>([0]);
+  const [externalSqlKeys, setExternalSqlKeys] = useState<number[]>([0]);
+  const [nextInlineIndex, setNextInlineIndex] = useState(1);
+  const [nextExternalIndex, setNextExternalIndex] = useState(1);
 
   /* ---------- COLLECT ALL showWhen DEPENDENCIES ---------- */
   const formValues = Form.useWatch([], form);
+  const sourceSelection = Form.useWatch("sql_source_type", form);
   const managerValue = Form.useWatch("manager", form);
+
+  React.useEffect(() => {
+    if (sourceSelection === "inline_sql") {
+      setInlineSqlKeys(prev => (prev.length ? prev : [0]));
+      setExternalSqlKeys([0]);
+      setNextInlineIndex(prev => Math.max(prev, 1));
+    } else if (sourceSelection === "external_sql") {
+      setExternalSqlKeys(prev => (prev.length ? prev : [0]));
+      setInlineSqlKeys([0]);
+      setNextExternalIndex(prev => Math.max(prev, 1));
+    } else {
+      setInlineSqlKeys([0]);
+      setExternalSqlKeys([0]);
+    }
+  }, [sourceSelection]);
 
   React.useEffect(() => {
     if (!formValues) return;
@@ -213,6 +233,65 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
     }
   };
 
+  /* ------------------ REPEATABLE FIELD HELPERS ------------------ */
+  const renderRepeatableField = (field: FormFieldConfig) => {
+    const isInline = field.name === "inline_sql_query";
+    const keys = isInline ? inlineSqlKeys : externalSqlKeys;
+    const setKeys = isInline ? setInlineSqlKeys : setExternalSqlKeys;
+    const nextIndex = isInline ? nextInlineIndex : nextExternalIndex;
+    const setNextIndex = isInline ? setNextInlineIndex : setNextExternalIndex;
+    const fieldBaseName = field.name;
+
+    const addItem = () => {
+      setKeys([...keys, nextIndex]);
+      setNextIndex(nextIndex + 1);
+    };
+
+    const removeItem = (itemIndex: number) => {
+      if (keys.length <= 1) return;
+      setKeys(keys.filter((k) => k !== itemIndex));
+      form.setFieldValue(`${fieldBaseName}_${itemIndex}`, undefined);
+    };
+
+    return (
+      <>
+        {keys.map((itemIndex) => (
+          <div key={`${fieldBaseName}_${itemIndex}`} style={{ marginBottom: 12 }}>
+            <Form.Item
+              name={`${fieldBaseName}_${itemIndex}`}
+              label={`${field.label} #${itemIndex + 1}`}
+              rules={buildRules(field)}
+              help={field.help}
+              valuePropName={field.type === "boolean" ? "checked" : "value"}
+            >
+              {isInline ? (
+                <TextArea
+                  rows={4}
+                  placeholder={field.placeholder}
+                  onChange={(e) => {
+                    form.setFieldValue(`${fieldBaseName}_${itemIndex}`, e.target.value);
+                  }}
+                />
+              ) : (
+                <Upload beforeUpload={() => false} maxCount={1}>
+                  <Button icon={<UploadOutlined />}>Upload File</Button>
+                </Upload>
+              )}
+            </Form.Item>
+
+            <Button type="link" danger onClick={() => removeItem(itemIndex)}>
+              Remove {isInline ? "Inline SQL" : "External SQL File"}
+            </Button>
+          </div>
+        ))}
+
+        <Button type="dashed" onClick={addItem} style={{ width: "100%" }}>
+          Add {isInline ? "Inline SQL" : "External SQL File"}
+        </Button>
+      </>
+    );
+  };
+
   /* ---------------------- FIELD RENDERER ---------------------- */
   const renderField = (field: FormFieldConfig) => {
     switch (field.type) {
@@ -313,6 +392,10 @@ export const DynamicFormFields: React.FC<{ fields: FormFieldConfig[] }> = ({
           if (actualValue !== field.showWhen.equals) {
             return null;
           }
+        }
+
+        if (field.name === "inline_sql_query" || field.name === "external_sql_file") {
+          return <div key={field.name}>{renderRepeatableField(field)}</div>;
         }
 
         return (

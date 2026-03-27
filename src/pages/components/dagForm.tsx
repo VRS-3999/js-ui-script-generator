@@ -36,9 +36,17 @@ export const DagForm: React.FC<DagFormProps> = ({
     }, [tenant, dagRepo, dagName, form]);
 
 
-    const onSubmit = async (values: any) => {
+    const onSubmit = async (values: Record<string, unknown>) => {
         try {
-            const response = await generateDagScript(values) as any;
+            const payload: Record<string, unknown> = { ...values };
+
+            const inlineKeys = Object.keys(values).filter(k => k.startsWith("inline_sql_query_"));
+            const externalKeys = Object.keys(values).filter(k => k.startsWith("external_sql_file_"));
+
+            payload.inline_sql_count = inlineKeys.length;
+            payload.external_sql_file_count = externalKeys.length;
+
+            const response = await generateDagScript(payload) as { dag_code?: string };
             const dagCode = response?.dag_code;
             setDagCode(dagCode ?? "DAG CODE NOT GENERATED");
         } catch (err) {
@@ -87,6 +95,24 @@ export const DagForm: React.FC<DagFormProps> = ({
 
                     <DynamicFormFields
                         fields={[
+                            {
+                                name: `${env.environment}_resource_sa`,
+                                label: "Resource Service Account",
+                                type: "input",
+                                required: true,
+                                placeholder: `${env.environment}-resource@project.iam.gserviceaccount.com`,
+                                pattern: "^[a-z0-9-]+@[a-z0-9-]+\\.iam\\.gserviceaccount\\.com$",
+                                patternMessage: "Enter valid GCP service account email"
+                            },
+                            {
+                                name: `${env.environment}_connect_sa`,
+                                label: "Connect Service Account",
+                                type: "input",
+                                required: true,
+                                placeholder: `${env.environment}-connect@project.iam.gserviceaccount.com`,
+                                pattern: "^[a-z0-9-]+@[a-z0-9-]+\\.iam\\.gserviceaccount\\.com$",
+                                patternMessage: "Enter valid GCP service account email"
+                            },
                             {
                                 name: `${env.environment}_success_emails`,
                                 label: "Success Notification Emails",
