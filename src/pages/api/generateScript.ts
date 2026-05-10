@@ -87,3 +87,25 @@ export const getManagers = async () => {
     };
   }
 };
+
+export const askDagQuestion = async (payload: any) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/ask`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error in ask API:", error);
+
+    throw error.response?.data || {
+      message: "Failed to process ask request",
+    };
+  }
+};
